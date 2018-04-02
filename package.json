@@ -1,0 +1,54 @@
+{
+  "name": "gendiff-veetors",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "bin": {
+    "hexlet": "dist/bin/gendiff.js"
+  },
+  "engines": {
+    "node": "8"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "jest",
+    "babel-node": "babel-node",
+    "eslint": "eslint",
+    "build": "NODE_ENV=production babel src --out-dir dist --source-maps inline",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/veetors/project-lvl2-s233.git"
+  },
+  "author": "Victor Shabratsky",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/veetors/project-lvl2-s233/issues"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "homepage": "https://github.com/veetors/project-lvl2-s233#readme",
+  "dependencies": {
+    "commander": "^2.15.1"
+  },
+  "devDependencies": {
+    "babel-cli": "*",
+    "babel-core": "*",
+    "babel-eslint": "*",
+    "babel-jest": "*",
+    "babel-plugin-transform-runtime": "*",
+    "babel-preset-env": "*",
+    "babel-preset-stage-0": "*",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "*",
+    "eslint-plugin-flowtype": "*",
+    "eslint-plugin-import": "*",
+    "eslint-plugin-jest": "*",
+    "jest": "^22.4.3",
+    "jest-cli": "*"
+  }
+}
