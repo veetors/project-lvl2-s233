@@ -1,6 +1,6 @@
 {
   "name": "gendiff-veetors",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "",
   "main": "dist/index.js",
   "bin": {
@@ -34,6 +34,7 @@
   "homepage": "https://github.com/veetors/project-lvl2-s233#readme",
   "dependencies": {
     "commander": "^2.15.1",
+    "ini": "^1.3.5",
     "js-yaml": "^3.11.0",
     "lodash": "^4.17.5"
   },
