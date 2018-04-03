@@ -12,25 +12,22 @@ const parsers = {
 };
 
 const comparator = (obj1, obj2) => {
-  const keys1 = Object.keys(obj1);
-  const keys2 = Object.keys(obj2);
-  const jointKeys = [...new Set([...keys1, ...keys2])];
-
-  const result = _.flatten(jointKeys.map((key) => {
+  const keys = _.union(_.keys(obj1), _.keys(obj2));
+  const result = _.flatten(keys.map((key) => {
     const value1 = obj1[key];
     const value2 = obj2[key];
 
     if (_.has(obj1, key) && _.has(obj2, key)) {
       return value1 === value2 ?
-        `    ${key}: ${value1}`
+        [`    ${key}: ${value1}`]
         :
         [`  + ${key}: ${value2}`, `  - ${key}: ${value1}`];
     }
 
     return _.has(obj1, key) ?
-      `  - ${key}: ${value1}`
+      [`  - ${key}: ${value1}`]
       :
-      `  + ${key}: ${value2}`;
+      [`  + ${key}: ${value2}`];
   })).join('\n');
 
   return `{\n${result}\n}`;
