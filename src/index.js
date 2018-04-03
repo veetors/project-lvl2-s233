@@ -11,7 +11,7 @@ const parsers = {
   '.ini': ini.parse,
 };
 
-const comparator = (obj1, obj2) => {
+const buildDiffLine = (obj1, obj2) => {
   const keys = _.union(_.keys(obj1), _.keys(obj2));
   const result = _.flatten(keys.map((key) => {
     const value1 = obj1[key];
@@ -19,15 +19,15 @@ const comparator = (obj1, obj2) => {
 
     if (_.has(obj1, key) && _.has(obj2, key)) {
       return value1 === value2 ?
-        [`    ${key}: ${value1}`]
+        `    ${key}: ${value1}`
         :
         [`  + ${key}: ${value2}`, `  - ${key}: ${value1}`];
     }
 
     return _.has(obj1, key) ?
-      [`  - ${key}: ${value1}`]
+      `  - ${key}: ${value1}`
       :
-      [`  + ${key}: ${value2}`];
+      `  + ${key}: ${value2}`;
   })).join('\n');
 
   return `{\n${result}\n}`;
@@ -38,10 +38,8 @@ const genDiff = (path1, path2) => {
   const parse = parsers[ext];
   const content1 = parse(fs.readFileSync(path1, 'utf-8'));
   const content2 = parse(fs.readFileSync(path2, 'utf-8'));
-  const result = comparator(content1, content2);
 
-  console.log(result);
-  return result;
+  return buildDiffLine(content1, content2);
 };
 
 export default genDiff;
