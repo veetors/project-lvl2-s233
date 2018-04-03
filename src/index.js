@@ -1,5 +1,13 @@
 import fs from 'fs';
+import path from 'path';
 import _ from 'lodash';
+import yaml from 'js-yaml';
+
+const parsers = {
+  '.json': JSON.parse,
+  '.yaml': yaml.safeLoad,
+  '.yml': yaml.safeLoad,
+};
 
 export const objToString = (obj) => {
   const result = Object.keys(obj)
@@ -34,8 +42,10 @@ const getDiffObj = (obj1, obj2) => {
 };
 
 const genDiff = (path1, path2) => {
-  const content1 = JSON.parse(fs.readFileSync(path1));
-  const content2 = JSON.parse(fs.readFileSync(path2));
+  const ext = path.extname(path1);
+  const parse = parsers[ext];
+  const content1 = parse(fs.readFileSync(path1));
+  const content2 = parse(fs.readFileSync(path2));
   const diffObj = getDiffObj(content1, content2);
   const result = objToString(diffObj);
 
