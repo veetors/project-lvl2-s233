@@ -1,9 +1,12 @@
 import fs from 'fs';
 import _ from 'lodash';
 
-const objToString = obj =>
-  Object.keys(obj)
+export const objToString = (obj) => {
+  const result = Object.keys(obj)
     .reduce((acc, key) => `${acc}  ${key}: ${obj[key]}\n`, '');
+
+  return `{\n${result}}`;
+};
 
 const getDiffObj = (obj1, obj2) => {
   const keys1 = Object.keys(obj1);
@@ -36,7 +39,8 @@ const genDiff = (path1, path2) => {
   const diffObj = getDiffObj(content1, content2);
   const result = objToString(diffObj);
 
-  return `{\n${result}}`;
+  console.log(result);
+  return result;
 };
 
 export default genDiff;
