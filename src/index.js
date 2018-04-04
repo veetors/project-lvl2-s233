@@ -95,11 +95,9 @@ const genDiff = (path1, path2) => {
   const parse = parsers[ext];
   const content1 = parse(fs.readFileSync(path1, 'utf-8'));
   const content2 = parse(fs.readFileSync(path2, 'utf-8'));
+  const diffTree = buildDiffTree(content1, content2);
 
-  const result = buildDiffTree(content1, content2);
-  const resultLine = buildDiffLine(result);
-
-  return resultLine;
+  return buildDiffLine(diffTree);
 };
 
 export default genDiff;
