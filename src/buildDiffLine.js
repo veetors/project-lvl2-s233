@@ -28,18 +28,20 @@ const buildDiffLine = (diffTree, spaces = 0) => {
       children,
     } = node;
 
-    if (type === 'unchangedParent') {
-      return `${getSpacesQuantity()}    ${key}: ${buildDiffLine(children, spaces + 2)}`;
-    } else if (type === 'unchanged') {
-      return `${getSpacesQuantity()}    ${key}: ${buildValueLine(value)}`;
-    } else if (type === 'changed') {
-      return [
+    const typeActions = {
+      unchangedParent: () => `${getSpacesQuantity()}    ${key}: ${buildDiffLine(children, spaces + 2)}`,
+      unchanged: () => `${getSpacesQuantity()}    ${key}: ${buildValueLine(value)}`,
+      changed: () => [
         `${getSpacesQuantity()}  ${sings.removed} ${key}: ${buildValueLine(previousValue)}`,
         `${getSpacesQuantity()}  ${sings.added} ${key}: ${buildValueLine(value)}`,
-      ];
-    }
+      ],
+      added: () => `${getSpacesQuantity()}  ${sings[type]} ${key}: ${buildValueLine(value)}`,
+      removed: () => `${getSpacesQuantity()}  ${sings[type]} ${key}: ${buildValueLine(value)}`,
+    };
 
-    return `${getSpacesQuantity()}  ${sings[type]} ${key}: ${buildValueLine(value)}`;
+    const getPropertyLines = nodeType => typeActions[nodeType]();
+
+    return getPropertyLines(type);
   })).join('\n');
 
   return `{\n${result}\n${getSpacesQuantity()}}`;
