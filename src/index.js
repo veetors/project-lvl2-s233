@@ -27,19 +27,18 @@ const buildDiffTree = (obj1, obj2) => {
       if (_.isObject(value1) && _.isObject(value2)) {
         const children = buildDiffTree(value1, value2);
 
-        return { key, type: 'unchanged', children };
-      } else if (_.isObject(value1) || _.isObject(value2)) {
-        return [
-          { key, type: 'removed', value: value1 },
-          { key, type: 'added', value: value2 },
-        ];
+        return { key, type: 'unchangedParent', children };
       }
 
       if (value1 !== value2) {
-        return [
-          { key, type: 'removed', value: value1 },
-          { key, type: 'added', value: value2 },
-        ];
+        const node = {
+          key,
+          type: 'changed',
+          value: value2,
+          previousValue: value1,
+        };
+
+        return node;
       }
 
       return { key, type: 'unchanged', value: value2 };
@@ -56,38 +55,42 @@ const buildDiffTree = (obj1, obj2) => {
 };
 
 const buildDiffLine = (diffTree, spaces = 0) => {
-  const result = diffTree.map((node) => {
+  const getSpacesQuantity = (repeatValue = spaces) => '  '.repeat(repeatValue);
+
+  const buildValueLine = (item) => {
+    if (_.isObject(item)) {
+      return `{\n${getSpacesQuantity(spaces + 4)}${getLineFromObject(item)}\n${getSpacesQuantity(spaces + 2)}}`;
+    }
+
+    return item;
+  };
+
+  const sings = { added: '+', removed: '-' };
+
+  const result = _.flatten(diffTree.map((node) => {
     const {
       type,
       key,
       value,
+      previousValue,
       children,
     } = node;
 
-    if (children) {
-      return `${'  '.repeat(spaces)}    ${key}: ${buildDiffLine(children, spaces + 2)}`;
+    if (type === 'unchangedParent') {
+      return `${getSpacesQuantity()}    ${key}: ${buildDiffLine(children, spaces + 2)}`;
+    } else if (type === 'unchanged') {
+      return `${getSpacesQuantity()}    ${key}: ${buildValueLine(value)}`;
+    } else if (type === 'changed') {
+      return [
+        `${getSpacesQuantity()}  ${sings.removed} ${key}: ${buildValueLine(previousValue)}`,
+        `${getSpacesQuantity()}  ${sings.added} ${key}: ${buildValueLine(value)}`,
+      ];
     }
 
-    if (_.isObject(value)) {
-      if (type === 'removed') {
-        return `${'  '.repeat(spaces)}  - ${key}: ${`{\n${'  '.repeat(spaces + 4)}${getLineFromObject(value)}\n${'  '.repeat(spaces + 2)}}`}`;
-      } else if (type === 'added') {
-        return `${'  '.repeat(spaces)}  + ${key}: ${`{\n${'  '.repeat(spaces + 4)}${getLineFromObject(value)}\n${'  '.repeat(spaces + 2)}}`}`;
-      }
+    return `${getSpacesQuantity()}  ${sings[type]} ${key}: ${buildValueLine(value)}`;
+  })).join('\n');
 
-      return `${'  '.repeat(spaces)}    ${key}: ${`{\n${'  '.repeat(spaces + 4)}${getLineFromObject(value)}\n${'  '.repeat(spaces + 2)}}`}`;
-    }
-
-    if (type === 'removed') {
-      return `${'  '.repeat(spaces)}  - ${key}: ${value}`;
-    } else if (type === 'added') {
-      return `${'  '.repeat(spaces)}  + ${key}: ${value}`;
-    }
-
-    return `${'  '.repeat(spaces)}    ${key}: ${value}`;
-  }).join('\n');
-
-  return `{\n${result}\n${'  '.repeat(spaces)}}`;
+  return `{\n${result}\n${getSpacesQuantity()}}`;
 };
 
 const genDiff = (path1, path2) => {
