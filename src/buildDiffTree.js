@@ -1,36 +1,35 @@
 import _ from 'lodash';
 
-const buildDiffTree = (obj1, obj2, parent) => {
+const buildDiffTree = (obj1, obj2) => {
   const keys = _.union(_.keys(obj1), _.keys(obj2));
   const tree = keys.map((key) => {
-    const value1 = obj1[key];
-    const value2 = obj2[key];
-    const node = { parent, key };
+    const beforeValue = obj1[key];
+    const afterValue = obj2[key];
 
     if (_.has(obj1, key) && _.has(obj2, key)) {
-      if (_.isObject(value1) && _.isObject(value2)) {
-        const children = buildDiffTree(value1, value2, key);
+      if (_.isObject(beforeValue) && _.isObject(afterValue)) {
+        const children = buildDiffTree(beforeValue, afterValue, key);
 
-        return { ...node, type: 'unchangedParent', children };
+        return { key, type: 'nested', children };
       }
 
-      if (value1 !== value2) {
+      if (beforeValue !== afterValue) {
         return {
-          ...node,
+          key,
           type: 'changed',
-          value: value2,
-          previousValue: value1,
+          value: afterValue,
+          previousValue: beforeValue,
         };
       }
 
-      return { ...node, type: 'unchanged', value: value2 };
+      return { key, type: 'unchanged', value: afterValue };
     }
 
     if (_.has(obj1, key)) {
-      return { ...node, type: 'removed', value: value1 };
+      return { key, type: 'removed', value: beforeValue };
     }
 
-    return { ...node, type: 'added', value: value2 };
+    return { key, type: 'added', value: afterValue };
   });
 
   return tree;
