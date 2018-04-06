@@ -15,6 +15,7 @@ const parsers = {
 const renderers = {
   inline: renderInlineDiff,
   plain: renderPlainDiff,
+  json: JSON.stringify,
 };
 
 const genDiff = (path1, path2, format = 'inline') => {
