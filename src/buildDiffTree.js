@@ -6,30 +6,38 @@ const buildDiffTree = (obj1, obj2) => {
     const beforeValue = obj1[key];
     const afterValue = obj2[key];
 
-    if (_.has(obj1, key) && _.has(obj2, key)) {
-      if (_.isObject(beforeValue) && _.isObject(afterValue)) {
-        const children = buildDiffTree(beforeValue, afterValue, key);
-
-        return { key, type: 'nested', children };
-      }
-
-      if (beforeValue !== afterValue) {
-        return {
+    const propertyActions = [
+      {
+        check: () => _.has(obj1, key) && !_.has(obj2, key),
+        action: () => ({ key, type: 'removed', value: beforeValue }),
+      },
+      {
+        check: () => !_.has(obj1, key) && _.has(obj2, key),
+        action: () => ({ key, type: 'added', value: afterValue }),
+      },
+      {
+        check: () => _.isObject(beforeValue) && _.isObject(afterValue),
+        action: () =>
+          ({ key, type: 'nested', children: buildDiffTree(beforeValue, afterValue, key) }),
+      },
+      {
+        check: () => beforeValue === afterValue,
+        action: () => ({ key, type: 'unchanged', value: afterValue }),
+      },
+      {
+        check: () => beforeValue !== afterValue,
+        action: () => ({
           key,
           type: 'changed',
           value: afterValue,
           previousValue: beforeValue,
-        };
-      }
+        }),
+      },
+    ];
 
-      return { key, type: 'unchanged', value: afterValue };
-    }
+    const currentType = _.find(propertyActions, o => o.check());
 
-    if (_.has(obj1, key)) {
-      return { key, type: 'removed', value: beforeValue };
-    }
-
-    return { key, type: 'added', value: afterValue };
+    return currentType.action();
   });
 
   return tree;

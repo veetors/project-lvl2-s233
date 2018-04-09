@@ -1,6 +1,9 @@
 install:
 	npm install
 
+install-flow-typed:
+	npm run flow-typed install
+
 run:
 	npm run babel-node -- src/bin/gendiff.js
 
@@ -10,6 +13,9 @@ build:
 
 lint:
 	npm run eslint .
+
+check-types:
+	npm run flow
 
 test:
 	npm test
