@@ -9,35 +9,30 @@ const buildDiffTree = (obj1, obj2) => {
     const propertyActions = [
       {
         check: () => _.has(obj1, key) && !_.has(obj2, key),
-        action: () => ({ key, type: 'removed', value: beforeValue }),
+        action: () => ({ type: 'removed', value: beforeValue }),
       },
       {
         check: () => !_.has(obj1, key) && _.has(obj2, key),
-        action: () => ({ key, type: 'added', value: afterValue }),
+        action: () => ({ type: 'added', value: afterValue }),
       },
       {
         check: () => _.isObject(beforeValue) && _.isObject(afterValue),
         action: () =>
-          ({ key, type: 'nested', children: buildDiffTree(beforeValue, afterValue, key) }),
+          ({ type: 'nested', children: buildDiffTree(beforeValue, afterValue) }),
       },
       {
         check: () => beforeValue === afterValue,
-        action: () => ({ key, type: 'unchanged', value: afterValue }),
+        action: () => ({ type: 'unchanged', value: afterValue }),
       },
       {
         check: () => beforeValue !== afterValue,
-        action: () => ({
-          key,
-          type: 'changed',
-          value: afterValue,
-          previousValue: beforeValue,
-        }),
+        action: () => ({ type: 'changed', value: afterValue, previousValue: beforeValue }),
       },
     ];
 
-    const currentType = _.find(propertyActions, o => o.check());
+    const { action } = _.find(propertyActions, ({ check }) => check());
 
-    return currentType.action();
+    return { key, ...action() };
   });
 
   return tree;

@@ -1,17 +1,15 @@
 import _ from 'lodash';
 
-const getLineFromObject = (obj) => {
-  const keys = _.keys(obj);
+const getLineFromObject = obj => _.keys(obj)
+  .map(key => `${key}: ${obj[key]}`)
+  .join('\n');
 
-  return keys.map(key => `${key}: ${obj[key]}`).join('\n');
-};
+const getIndent = repeatValue => '  '.repeat(repeatValue);
 
 const renderInlineDiff = (diffTree, spaces = 0) => {
-  const getSpacesQuantity = (repeatValue = spaces) => '  '.repeat(repeatValue);
-
   const buildValueLine = (item) => {
     if (_.isObject(item)) {
-      return `{\n${getSpacesQuantity(spaces + 4)}${getLineFromObject(item)}\n${getSpacesQuantity(spaces + 2)}}`;
+      return `{\n${getIndent(spaces + 4)}${getLineFromObject(item)}\n${getIndent(spaces + 2)}}`;
     }
 
     return item;
@@ -29,14 +27,14 @@ const renderInlineDiff = (diffTree, spaces = 0) => {
     } = node;
 
     const typeActions = {
-      nested: () => `${getSpacesQuantity()}    ${key}: ${renderInlineDiff(children, spaces + 2)}`,
-      unchanged: () => `${getSpacesQuantity()}    ${key}: ${buildValueLine(value)}`,
+      nested: () => `${getIndent(spaces)}    ${key}: ${renderInlineDiff(children, spaces + 2)}`,
+      unchanged: () => `${getIndent(spaces)}    ${key}: ${buildValueLine(value)}`,
       changed: () => [
-        `${getSpacesQuantity()}  ${sings.removed} ${key}: ${buildValueLine(previousValue)}`,
-        `${getSpacesQuantity()}  ${sings.added} ${key}: ${buildValueLine(value)}`,
+        `${getIndent(spaces)}  ${sings.removed} ${key}: ${buildValueLine(previousValue)}`,
+        `${getIndent(spaces)}  ${sings.added} ${key}: ${buildValueLine(value)}`,
       ],
-      added: () => `${getSpacesQuantity()}  ${sings[type]} ${key}: ${buildValueLine(value)}`,
-      removed: () => `${getSpacesQuantity()}  ${sings[type]} ${key}: ${buildValueLine(value)}`,
+      added: () => `${getIndent(spaces)}  ${sings[type]} ${key}: ${buildValueLine(value)}`,
+      removed: () => `${getIndent(spaces)}  ${sings[type]} ${key}: ${buildValueLine(value)}`,
     };
 
     const getPropertyLine = nodeType => typeActions[nodeType]();
@@ -44,7 +42,7 @@ const renderInlineDiff = (diffTree, spaces = 0) => {
     return getPropertyLine(type);
   })).join('\n');
 
-  return `{\n${result}\n${getSpacesQuantity()}}`;
+  return `{\n${result}\n${getIndent(spaces)}}`;
 };
 
 export default renderInlineDiff;
